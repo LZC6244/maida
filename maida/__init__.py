@@ -1,1 +1,1 @@
-name = 'maida'
+from maida.mail import EmailSender

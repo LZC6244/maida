@@ -5,7 +5,7 @@ import smtplib
 from email.mime.text import MIMEText
 
 
-class EmailSend(object):
+class EmailSender(object):
     def __init__(self, email_host='smtphz.qiye.163.com', email_port=465, email_pass=''):
         self.logger = logging.getLogger(__name__)
         self.email_host = email_host
@@ -14,7 +14,7 @@ class EmailSend(object):
             self.email_pass = email_pass
         else:
             # 设置一个初始值，避免每次都输入授权码
-            self.email_pass = '4faNFstCz5jMUyU7'
+            self.email_pass = 'xxxxxxxxxxx'
             # self.logger.error('Please Enter The  Password!')
 
     def send(self, from_addr, to_addrs, subject, content):
@@ -46,7 +46,7 @@ class EmailSend(object):
 
 
 if __name__ == '__main__':
-    email = EmailSend()
+    email = EmailSender()
     content = '这是lzc发送过来的邮件。请注意查收！'
     email.send(from_addr='xxx@xxx.com', to_addrs=['xxx@xxx.com', 'xxx@xxx.com'], subject='测-试',
                content=content)
