@@ -1,5 +1,6 @@
 # author: lzc
-# update: 2019.5.5
+# update: 2019.5.14
+# email:  624486877@qq.com
 import logging
 import smtplib
 from os import path

@@ -5,7 +5,7 @@ with open('README.md', 'r', encoding='utf-8') as fh:
 
 setuptools.setup(
     name="maida",
-    version="0.0.9",
+    version="0.0.10",
     author="lzc",
     author_email="624486877@qq.com",
     description="A small example package for me ( now is for sending email ).",
