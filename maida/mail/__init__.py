@@ -1,6 +1,7 @@
 # author: lzc
 # update: 2019.5.14
 # email:  624486877@qq.com
+import base64
 import logging
 import smtplib
 from os import path
@@ -83,6 +84,18 @@ class EmailSender(object):
                 # 或者可以这样写
                 # att['Content-Disposition'] = 'attachment;filename="%s"' % filename
             self.msg.attach(att)
+
+    def html_img(self, file):
+        # 将图片转换成 base64 编码
+        # 然后根据 html 语法填写成 html 语句
+        with open(file, 'rb') as f:
+            # base64编码后的字符串
+            s_b64 = base64.b64encode(f.read())
+            s_b64 = str(s_b64, encoding='utf-8')
+            # 图片文件的后缀
+            f_suffix = file.split('.')[-1]
+            img = '<img src="data:image/%s;base64,%s"/>' % (f_suffix, s_b64)
+            return img
 
     def send(self):
         from_addr = self.msg['From']
