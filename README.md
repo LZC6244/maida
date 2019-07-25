@@ -24,3 +24,6 @@
     email.attach_file(r'C:\xxx\xx.txt')
     email.send()
 
+## 版本历程
+详见 [history.md](https://github.com/LZC6244/maida/blob/master/history.md)
+
