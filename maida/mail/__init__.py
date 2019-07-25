@@ -1,7 +1,6 @@
 # author: lzc
-# update: 2019.5.14
+# update: 2019.7.25
 # email:  624486877@qq.com
-import base64
 import logging
 import smtplib
 from os import path
@@ -21,6 +20,7 @@ def isContainChinese(string):
 class EmailSender(object):
     # 初始化
     msg = MIMEMultipart()
+    client = ''
 
     def __init__(self, email_host='smtphz.qiye.163.com', email_port=465, email_pass=''):
         self.logger = logging.getLogger(__name__)
@@ -29,26 +29,38 @@ class EmailSender(object):
         if email_pass:
             self.email_pass = email_pass
         else:
-            # 设置一个初始值，避免每次都输入授权码
+            # 可以设置一个初始值，避免每次都输入授权码
             self.email_pass = 'xxxxxxxxxxx'
             # self.logger.error('Please Enter The  Password!')
 
     def init(self, from_addr, to_addrs, subject):
-        # 初始化，填入一下信息
+        # 初始化，填入以下信息
         # from_addr = '发件人'
-        # to_addrs = '收件人'
+        # to_addrs = '收件人'  （ 收件人为字符串时，视其为一个仅含该字符串的列表 ）
         # subject = '邮件标题'
-        to_addrs_s = ''
-        if not isinstance(to_addrs, str):
-            for i in list(to_addrs):
-                to_addrs_s += i + ','
-            to_addrs_s = to_addrs_s.strip(',')
+        if isinstance(to_addrs, list):
+            pass
+        elif isinstance(to_addrs, str):
+            to_addrs = [to_addrs]
         else:
-            to_addrs_s = to_addrs
+            self.logger.error('[ to_addrs ] must be a str or list.')
+            return '[ to_addrs ] must be a str or list.'
 
         self.msg['From'] = from_addr
-        self.msg['To'] = to_addrs_s
+        # 需为用 ';' 连接的字符串
+        self.msg['To'] = ';'.join(to_addrs)
         self.msg['Subject'] = subject
+
+        try:
+            # 在创建客户端对象的同时，使用SSL加密连接到邮箱服务器
+            self.client = smtplib.SMTP_SSL(host=self.email_host, port=self.email_port)
+            login_result = self.client.login(from_addr, self.email_pass)
+            if login_result and login_result[0] == 235:
+                print('[ EmailSender ] Login successful.')
+            else:
+                print('[ EmailSender ] Login failed: ', login_result[0], login_result[1])
+        except Exception as e:
+            self.logger.error('[ EmailSender ] Connection to mail server error: %s.' % e)
 
     def attach_text(self, text=''):
         # 添加邮件正文 （ 纯文本 ）
@@ -85,34 +97,26 @@ class EmailSender(object):
                 # att['Content-Disposition'] = 'attachment;filename="%s"' % filename
             self.msg.attach(att)
 
-    def html_img(self, file):
-        # 将图片转换成 base64 编码
-        # 然后根据 html 语法填写成 html 语句
-        with open(file, 'rb') as f:
-            # base64编码后的字符串
-            s_b64 = base64.b64encode(f.read())
-            s_b64 = str(s_b64, encoding='utf-8')
-            # 图片文件的后缀
-            f_suffix = file.split('.')[-1]
-            img = '<img src="data:image/%s;base64,%s"/>' % (f_suffix, s_b64)
-            return img
-
     def send(self):
-        from_addr = self.msg['From']
-        to_addrs = self.msg['To']
-        try:
-            # 在创建客户端对象的同时，使用SSL加密连接到邮箱服务器
-            client = smtplib.SMTP_SSL(host=self.email_host, port=self.email_port)
-            login_result = client.login(from_addr, self.email_pass)
-            if login_result and login_result[0] == 235:
-                print('[ EmailSend ] Login successful.')
-                # print(login_result)
-                client.sendmail(from_addr, to_addrs, self.msg.as_string())
-                print('[ EmailSend ] Email sent successfully.')
-            else:
-                print('[ EmailSend ] Login failed: ', login_result[0], login_result[1])
-        except Exception as e:
-            self.logger.error('[ EmailSend ] Connection to mail server error: %s.' % e)
+        if self.client:
+            from_addr = self.msg['From']
+            # 需为一个 list
+            to_addrs = self.msg['To'].split(';')
+            try:
+                self.client.sendmail(from_addr, to_addrs, self.msg.as_string())
+                print('[ EmailSender ] Email sent successfully.')
+            except Exception as e:
+                self.logger.error('[ EmailSender ] e-mail sending failed: %s.' % e)
+        else:
+            self.logger.error('[ EmailSender ] You must first connect to the mail server by using [ init ].')
+
+    def close(self):
+        # 关闭对邮件服务器的连接
+        if self.client:
+            self.client.close()
+            print('[ EmailSender ] Closed.')
+        else:
+            self.logger.error('[ EmailSender ] You must first connect to the mail server by using [ init ].')
 
 
 if __name__ == '__main__':
