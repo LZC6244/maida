@@ -28,7 +28,7 @@ email.close()
 ```
 
     
-### scrapy
+## scrapy
 整合了 [scrapy_mail](https://github.com/LZC6244/scrapy_mail) 中的拓展，详情请到原始页面查看  
 `scrapy` 使用此拓展时可以直接引用，不用手动复制至 **scrapy 同级目录**
 即
