@@ -18,6 +18,8 @@
 
 ### demo
 ```text
+from maida import EmailSender
+
 email = EmailSender(email_host='smtp.qq.com', email_pass='xxx')
 content = '这是lzc发送过来的邮件。请注意查收！'
 email.init(from_addr='xxx@qq.com', to_addrs=['xxx@qq.com'], subject='测-试')
