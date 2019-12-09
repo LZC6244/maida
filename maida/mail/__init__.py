@@ -20,9 +20,6 @@ def isContainChinese(string):
 class EmailSender(object):
 
     def __init__(self, email_host='smtphz.qiye.163.com', email_port=465, email_pass=''):
-        # 初始化
-        self.msg = MIMEMultipart()
-        self.client = ''
         self.logger = logging.getLogger(__name__)
         self.email_host = email_host
         self.email_port = email_port
@@ -49,6 +46,9 @@ class EmailSender(object):
         :param kwargs:拓展字段，可以输入 email Message 支持的字段
         :return:
         """
+        # 初始化
+        self.msg = MIMEMultipart()
+        self.client = ''
         if isinstance(to_addrs, list):
             pass
         elif isinstance(to_addrs, str):
