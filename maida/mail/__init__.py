@@ -18,11 +18,11 @@ def isContainChinese(string):
 
 
 class EmailSender(object):
-    # 初始化
-    msg = MIMEMultipart()
-    client = ''
 
     def __init__(self, email_host='smtphz.qiye.163.com', email_port=465, email_pass=''):
+        # 初始化
+        self.msg = MIMEMultipart()
+        self.client = ''
         self.logger = logging.getLogger(__name__)
         self.email_host = email_host
         self.email_port = email_port
