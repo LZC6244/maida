@@ -15,6 +15,7 @@
 > 2. 可以发送图片
 > 3. 可以发送附件（图片、文件等），`附件文件名可以包含中文` 
 > 4. 可以群发邮件
+> 5. 可以设置邮件优先级（如标红）
 
 ### demo
 ```text
@@ -22,7 +23,7 @@ from maida import EmailSender
 
 email = EmailSender(email_host='smtp.qq.com', email_pass='xxx')
 content = '这是lzc发送过来的邮件。请注意查收！'
-email.init(from_addr='xxx@qq.com', to_addrs=['xxx@qq.com'], subject='测-试')
+email.init(from_addr='xxx@qq.com', to_addrs=['xxx@qq.com'], subject='测-试', x_priority='1')
 email.attach_text(text=content)
 email.attach_file(r'C:\xxx\xx.jpg')
 email.attach_file(r'C:\xxx\xx.txt')

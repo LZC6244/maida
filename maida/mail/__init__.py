@@ -33,11 +33,22 @@ class EmailSender(object):
             self.email_pass = 'xxxxxxxxxxx'
             # self.logger.error('Please Enter The  Password!')
 
-    def init(self, from_addr, to_addrs, subject):
-        # 初始化，填入以下信息
-        # from_addr = '发件人'
-        # to_addrs = '收件人'  （ 收件人为字符串时，视其为一个仅含该字符串的列表 ）
-        # subject = '邮件标题'
+    def init(self, from_addr, to_addrs, subject, x_priority='3', **kwargs):
+        """
+        初始化，填入以下信息
+        :param from_addr:发件人
+        :param to_addrs:收件人（收件人为字符串时，视其为一个仅含该字符串的列表）
+        :param subject:邮件标题
+        :param x_priority:邮件优先级 （ 等同于 email Message 的 X-Priority ）
+                "1"	最高级别（重要性高）
+                "2"	介于中间 （高）
+                "3"	普通级别（不提示重要性）
+                "4"	介于中间 （低）
+                "5"	最低级别（重要性低）
+                "其他" 普通级别（不提示重要性）
+        :param kwargs:拓展字段，可以输入 email Message 支持的字段
+        :return:
+        """
         if isinstance(to_addrs, list):
             pass
         elif isinstance(to_addrs, str):
@@ -50,6 +61,9 @@ class EmailSender(object):
         # 需为用 ';' 连接的字符串
         self.msg['To'] = ';'.join(to_addrs)
         self.msg['Subject'] = subject
+        self.msg['X-Priority'] = x_priority
+        for k, v in kwargs.items():
+            self.msg[k] = v
 
         try:
             # 在创建客户端对象的同时，使用SSL加密连接到邮箱服务器
