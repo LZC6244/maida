@@ -33,7 +33,7 @@ email.close()
 
     
 ## scrapy
-整合了 [scrapy_mail](https://github.com/LZC6244/scrapy_mail) 中的拓展，详情请到原始页面查看  
+整合了 [scrapy_mail](https://github.com/LZC6244/scrapy_mail) 中的拓展（该库变更至由本项目维护），[具体用法点这里](https://github.com/LZC6244/maida/blob/master/docs/scrapy_mail.md)  
 `scrapy` 使用此拓展时可以直接引用，不用手动复制至 **scrapy 同级目录**
 即
 ```text
@@ -49,5 +49,5 @@ EXTENSIONS = {
 ```
 其他地方保持不变
 ## 版本历程
-详见 [history.md](https://github.com/LZC6244/maida/blob/master/history.md)
+详见 [history.md](https://github.com/LZC6244/maida/blob/master/docs/history.md)
 
