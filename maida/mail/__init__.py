@@ -8,6 +8,8 @@ from email.mime.text import MIMEText
 from email.mime.image import MIMEImage
 from email.mime.multipart import MIMEMultipart
 
+logger = logging.getLogger(__name__)
+
 
 def isContainChinese(string):
     # 判断字符串是否含有中文
@@ -20,7 +22,6 @@ def isContainChinese(string):
 class EmailSender(object):
 
     def __init__(self, email_host='smtphz.qiye.163.com', email_port=465, email_pass=''):
-        self.logger = logging.getLogger(__name__)
         self.email_host = email_host
         self.email_port = email_port
         if email_pass:
@@ -28,7 +29,7 @@ class EmailSender(object):
         else:
             # 可以设置一个初始值，避免每次都输入授权码
             self.email_pass = 'xxxxxxxxxxx'
-            # self.logger.error('Please Enter The  Password!')
+            # logger.error('Please Enter The  Password!')
 
     def init(self, from_addr, to_addrs, subject, x_priority='3', **kwargs):
         """
@@ -54,7 +55,7 @@ class EmailSender(object):
         elif isinstance(to_addrs, str):
             to_addrs = [to_addrs]
         else:
-            self.logger.error('[ to_addrs ] must be a str or list.')
+            logger.error('[ to_addrs ] must be a str or list.')
             return '[ to_addrs ] must be a str or list.'
 
         self.msg['From'] = from_addr
@@ -74,7 +75,7 @@ class EmailSender(object):
             else:
                 print('[ EmailSender ] Login failed: ', login_result[0], login_result[1])
         except Exception as e:
-            self.logger.error('[ EmailSender ] Connection to mail server error: %s.' % e)
+            logger.error('[ EmailSender ] Connection to mail server error: %s.' % e)
 
     def attach_text(self, text=''):
         # 添加邮件正文 （ 纯文本 ）
@@ -91,7 +92,7 @@ class EmailSender(object):
     def attach_file(self, file=''):
         # 添加邮件附件
         if not file:
-            self.logger.error('Please enter the filename that contains the full path.')
+            logger.error('Please enter the filename that contains the full path.')
             return None
         with open(file, 'rb') as f:
             # 不使用这种，没有文件关闭操作
@@ -119,10 +120,13 @@ class EmailSender(object):
             try:
                 self.client.sendmail(from_addr, to_addrs, self.msg.as_string())
                 print('[ EmailSender ] Email sent successfully.')
+                return True
             except Exception as e:
-                self.logger.error('[ EmailSender ] e-mail sending failed: %s.' % e)
+                logger.error('[ EmailSender ] e-mail sending failed: %s.' % e)
+                return False
         else:
-            self.logger.error('[ EmailSender ] You must first connect to the mail server by using [ init ].')
+            logger.error('[ EmailSender ] You must first connect to the mail server by using [ init ].')
+            return False
 
     def close(self):
         # 关闭对邮件服务器的连接
@@ -130,7 +134,7 @@ class EmailSender(object):
             self.client.close()
             print('[ EmailSender ] Closed.')
         else:
-            self.logger.error('[ EmailSender ] You must first connect to the mail server by using [ init ].')
+            logger.error('[ EmailSender ] You must first connect to the mail server by using [ init ].')
 
 
 if __name__ == '__main__':
