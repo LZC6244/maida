@@ -1,6 +1,6 @@
 # maida 
 
-可以看成自定义拓展 scrapy 的库。目前：
+**目前：**
 1. 用于发送邮件
 
 ---
@@ -21,33 +21,15 @@
 ```text
 from maida import EmailSender
 
-email = EmailSender(email_host='smtp.qq.com', email_pass='xxx')
+email_sender = EmailSender(email_host='smtp.qq.com', email_port=465, from_addr='xxx@qq.com', email_pass='xxx')
 content = '这是lzc发送过来的邮件。请注意查收！'
-email.init(from_addr='xxx@qq.com', to_addrs=['xxx@qq.com'], subject='测-试', x_priority='1')
-email.attach_text(text=content)
-email.attach_file(r'C:\xxx\xx.jpg')
-email.attach_file(r'C:\xxx\xx.txt')
-email.send()
-email.close()
+email_sender.attach_text(text=content)
+email_sender.attach_file(r'C:\xxx\xx.jpg')
+email_sender.attach_file(r'C:\xxx\xx.txt')
+email_sender.send(to_addrs=['xxx@qq.com'], subject='测-试')
 ```
 
-    
-## scrapy
-整合了 [scrapy_mail](https://github.com/LZC6244/scrapy_mail) 中的拓展（该库变更至由本项目维护），[具体用法点这里](https://github.com/LZC6244/maida/blob/master/docs/scrapy_mail.md)  
-`scrapy` 使用此拓展时可以直接引用，不用手动复制至 **scrapy 同级目录**
-即
-```text
-EXTENSIONS = {
-    'lzc.extensions.closespider.CloseSpider': 200,
-}
-```
-变更为
-```text
-EXTENSIONS = {
-    'maida.scrapy.extensions.closespider.CloseSpider': 200,
-}
-```
-其他地方保持不变
+
 ## 版本历程
 详见 [history.md](https://github.com/LZC6244/maida/blob/master/docs/history.md)
 
