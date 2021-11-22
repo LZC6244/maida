@@ -1,7 +1,4 @@
 # -*- coding: utf-8 -*-
-# author: maida
-# update: 2021.8.31
-# email:  624486877@qq.com
 
 import logging
 import smtplib
@@ -27,17 +24,19 @@ class EmailSender(object):
     mail_log: bool
     msg = None
 
-    def __init__(self, email_host, email_port, from_addr, email_pass, mail_log: bool = True):
+    def __init__(self, email_host, email_port, from_addr, need_auth=True, email_pass=None, mail_log: bool = True):
         """
         :param email_host: smtp 服务器地址，如 'smtp.163.com'
         :param email_port: smtp 服务器端口，如 465
-        :param from_addr:发件人
-        :param email_pass:发件人授权码
-        :param mail_log:是否记录 mail 日志
+        :param from_addr: 发件人
+        :param need_auth: 发送邮件是否需要验证，默认为 Ture
+        :param email_pass: 发件人授权码
+        :param mail_log: 是否记录 mail 日志
         """
         self.email_host = email_host
         self.email_port = email_port
         self.from_addr = from_addr
+        self.need_auth = need_auth
         self.email_pass = email_pass
         self.mail_log = mail_log
         self.msg = MIMEMultipart()
@@ -85,12 +84,13 @@ class EmailSender(object):
                 # att['Content-Disposition'] = 'attachment;filename="%s"' % filename
             self.msg.attach(att)
 
-    def send(self, to_addrs, subject, cc_addrs=None, mail_ssl=True, x_priority='3', **kwargs):
+    def send(self, to_addrs, subject, cc_addrs=None, mail_ssl=True, mail_tls=True, x_priority='3', **kwargs):
         """
         :param to_addrs:收件人（收件人为字符串时，视其为一个仅含该字符串的列表）
         :param subject:邮件标题
         :param cc_addrs:抄送人
         :param mail_ssl:是否使用ssl加密连接
+        :param mail_tls:是否使用tls加密连接
         :param x_priority:邮件优先级 （ 等同于 email Message 的 X-Priority ）
                 "1"	最高级别（重要性高）
                 "2"	介于中间 （高）
@@ -130,13 +130,17 @@ class EmailSender(object):
             client = smtplib.SMTP_SSL(host=self.email_host, port=self.email_port)
         else:
             client = smtplib.SMTP(host=self.email_host, port=self.email_port)
-            client.starttls()
-        login_result = client.login(self.from_addr, self.email_pass)
-        if login_result and login_result[0] == 235:
-            if self.mail_log:
-                logger.info('[ EmailSender ] Login successful.')
+            if mail_tls:
+                client.starttls()
+        if self.need_auth:
+            login_result = client.login(self.from_addr, self.email_pass)
+            if login_result and login_result[0] == 235:
+                if self.mail_log:
+                    logger.info('[ EmailSender ] Login successful.')
+            else:
+                raise UserWarning('[ EmailSender ] Login failed: ', login_result[0], login_result[1])
         else:
-            raise UserWarning('[ EmailSender ] Login failed: ', login_result[0], login_result[1])
+            logger.info('[ EmailSender ] Not need auth.')
 
         from_addr = self.msg['From']
         # 需为一个 list
