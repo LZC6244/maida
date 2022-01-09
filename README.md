@@ -9,6 +9,10 @@
 可以直接 `pip` 安装
 > pip install maida
 
+win 平台安装时若报 `python-levenshtein` 安装失败请根据提示安装相应环境  
+
+或在 https://www.lfd.uci.edu/~gohlke/pythonlibs/#python-levenshtein 使用 whl 安装
+
 ##  mail
 ###  EmailSender
 基于 `smtplib` 的发送邮件脚本  

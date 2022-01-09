@@ -4,8 +4,8 @@ import numpy as np
 from PIL import Image
 from cnocr import CnOcr
 
-logging.basicConfig(format='%(asctime)s [%(module)s] %(levelname)s: %(message)s',
-                    level=logging.INFO)
+logging.basicConfig(format='%(asctime)s [%(name)s] %(levelname)s: %(message)s',
+                    level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S')
 logger = logging.getLogger(__name__)
 
 
