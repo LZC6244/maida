@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-
+import os
 import logging
 import smtplib
-from os import path
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
@@ -72,7 +71,7 @@ class EmailSender(object):
             att = MIMEText(f.read(), 'base64', 'utf-8')
             att['Content-Type'] = 'application/octet-stream'
             # 获取文件名
-            filename = path.split(file)[1]
+            filename = os.split(file)[1]
             # 判断文件名是否含有中文
             if is_contain_chinese(filename):
                 # 处理中文文件名 （ add_header的第三种写法 ）
@@ -136,11 +135,11 @@ class EmailSender(object):
             login_result = client.login(self.from_addr, self.email_pass)
             if login_result and login_result[0] == 235:
                 if self.mail_log:
-                    logger.info('[ EmailSender ] Login successful.')
+                    logger.info(f'[ EmailSender ] Login successful: {subject}')
             else:
-                raise UserWarning('[ EmailSender ] Login failed: ', login_result[0], login_result[1])
+                raise UserWarning('[ EmailSender ] Login failed: ', login_result[0], login_result[1], f'--- {subject}')
         else:
-            logger.info('[ EmailSender ] Not need auth.')
+            logger.info(f'[ EmailSender ] Not need auth: {subject}')
 
         from_addr = self.msg['From']
         # 需为一个 list
@@ -151,7 +150,7 @@ class EmailSender(object):
         try:
             client.sendmail(from_addr, to_addrs, self.msg.as_string())
             if self.mail_log:
-                logger.info('[ EmailSender ] Email sent successful.')
+                logger.info(f'[ EmailSender ] Email sent successful: {subject}')
         finally:
             client.close()
 
