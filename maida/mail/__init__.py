@@ -71,7 +71,7 @@ class EmailSender(object):
             att = MIMEText(f.read(), 'base64', 'utf-8')
             att['Content-Type'] = 'application/octet-stream'
             # 获取文件名
-            filename = os.split(file)[1]
+            filename = os.path.split(file)[1]
             # 判断文件名是否含有中文
             if is_contain_chinese(filename):
                 # 处理中文文件名 （ add_header的第三种写法 ）
@@ -157,7 +157,7 @@ class EmailSender(object):
 
 if __name__ == '__main__':
     email_sender = EmailSender(email_host='smtp.qq.com', email_port=465, from_addr='xxx@qq.com', email_pass='xxx')
-    content = '这是lzc发送过来的邮件。请注意查收！'
+    content = '这是 maida 发送过来的邮件。请注意查收！'
     email_sender.attach_text(text=content)
     email_sender.attach_file(r'C:\xxx\xx.jpg')
     email_sender.attach_file(r'C:\xxx\xx.txt')
