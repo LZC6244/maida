@@ -2,6 +2,7 @@
 import os
 import logging
 import smtplib
+from typing import Union
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
@@ -60,28 +61,38 @@ class EmailSender(object):
         msg_text = MIMEText(text, 'html', 'utf8')
         self.msg.attach(msg_text)
 
-    def attach_file(self, file=''):
-        # 添加邮件附件
-        if not file:
-            logger.error('Please enter the filename that contains the full path.')
-            return None
-        with open(file, 'rb') as f:
-            # 不使用这种，没有文件关闭操作
-            # att = MIMEText(open(file, 'rb').read(), 'base64', 'utf-8')
-            att = MIMEText(f.read(), 'base64', 'utf-8')
-            att['Content-Type'] = 'application/octet-stream'
-            # 获取文件名
-            filename = os.path.split(file)[1]
-            # 判断文件名是否含有中文
-            if is_contain_chinese(filename):
-                # 处理中文文件名 （ add_header的第三种写法 ）
-                att.add_header("Content-Disposition", "attachment", filename=("gbk", "", filename))
-            else:
-                # 文件名不含中文 （ add_header的第一种写法 ）
-                att.add_header('content-disposition', 'attachment', filename=filename)
-                # 或者可以这样写
-                # att['Content-Disposition'] = 'attachment;filename="%s"' % filename
-            self.msg.attach(att)
+    def attach_file(self, file: Union[str, bytes], file_name=None):
+        """
+        添加邮件附件
+        :param file: 附件路径或者附件二进制，如：
+                     - /maida/1.txt
+                     - open('/maida/1.txt', 'rb').read() or _io.BytesIO.read()
+        :param file_name: 邮件中的附件文件名（默认为附件原始名称）
+        :return:
+        """
+        if isinstance(file, str):
+            with open(file, 'rb') as f:
+                # 不使用这种，没有文件关闭操作
+                # att = MIMEText(open(file, 'rb').read(), 'base64', 'utf-8')
+                att = MIMEText(f.read(), 'base64', 'utf-8')
+            if not file_name:
+                # 获取附件原始文件名
+                file_name = os.path.split(file)[1]
+        elif isinstance(file, bytes):
+            att = MIMEText(file, 'base64', 'utf-8')
+            if not file_name:
+                raise ValueError('[file_name] must be not None when [file] is bytes.')
+        att['Content-Type'] = 'application/octet-stream'
+        # 判断文件名是否含有中文
+        if is_contain_chinese(file_name):
+            # 处理中文文件名 （ add_header的第三种写法 ）
+            att.add_header('Content-Disposition', 'attachment', filename=('gbk', '', file_name))
+        else:
+            # 文件名不含中文 （ add_header的第一种写法 ）
+            att.add_header('content-disposition', 'attachment', filename=file_name)
+            # 或者可以这样写
+            # att['Content-Disposition'] = 'attachment;filename="%s"' % filename
+        self.msg.attach(att)
 
     def send(self, to_addrs, subject, cc_addrs=None, mail_ssl=True, mail_tls=True, x_priority='3', **kwargs):
         """
@@ -91,12 +102,12 @@ class EmailSender(object):
         :param mail_ssl:是否使用ssl加密连接
         :param mail_tls:是否使用tls加密连接
         :param x_priority:邮件优先级 （ 等同于 email Message 的 X-Priority ）
-                "1"	最高级别（重要性高）
-                "2"	介于中间 （高）
-                "3"	普通级别（不提示重要性）
-                "4"	介于中间 （低）
-                "5"	最低级别（重要性低）
-                "其他" 普通级别（不提示重要性）
+                '1'	最高级别（重要性高）
+                '2'	介于中间 （高）
+                '3'	普通级别（不提示重要性）
+                '4'	介于中间 （低）
+                '5'	最低级别（重要性低）
+                '其他' 普通级别（不提示重要性）
         :param kwargs:拓展字段，可以输入 email Message 支持的字段
         :return:
         """

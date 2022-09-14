@@ -5,7 +5,7 @@ with open('README.md', 'r', encoding='utf-8') as fh:
 
 setuptools.setup(
     name="maida",
-    version="0.1.15",
+    version="0.1.17",
     author="maida",
     author_email="624486877@qq.com",
     description="No description.",
@@ -14,6 +14,7 @@ setuptools.setup(
     url="https://github.com/LZC6244/maida",
     packages=setuptools.find_packages(),
     install_requires=['cnocr'],
+    python_requires=">=3.7",
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
