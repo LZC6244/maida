@@ -9,10 +9,6 @@
 可以直接 `pip` 安装
 > pip install maida
 
-win 平台安装时若报 `python-levenshtein` 安装失败请根据提示安装相应环境  
-
-或在 https://www.lfd.uci.edu/~gohlke/pythonlibs/#python-levenshtein 使用 whl 安装
-
 ##  mail
 ###  EmailSender
 基于 `smtplib` 的发送邮件脚本  
@@ -36,7 +32,17 @@ email_sender.attach_file(r'C:\xxx\xx.txt')
 email_sender.send(to_addrs=['xxx@qq.com'], subject='测-试')
 ```
 
-## ocr
+## ocr【可选】
+
+**安装方式**
+
+> pip install maida[ocr]
+
+win 平台安装时若报 `python-levenshtein` 安装失败请根据提示安装相应环境  
+
+或在 https://www.lfd.uci.edu/~gohlke/pythonlibs/#python-levenshtein 使用 whl 安装
+
+
 ### img_2_cn
 基于 [cnocr](https://github.com/breezedeus/cnocr) 的小说图片转中文文字脚本  
 
@@ -46,7 +52,7 @@ email_sender.send(to_addrs=['xxx@qq.com'], subject='测-试')
 
 ### demo
 ```text
-from maida import img_2_cn
+from maida.ocr import img_2_cn
 
 print(img_2_cn('xxx.gif'))
 ```

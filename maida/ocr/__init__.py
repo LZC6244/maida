@@ -53,12 +53,14 @@ def img_2_cn(img_path, threshold=10, result='text'):
     # 转换为 np array
     img_array = np.expand_dims(np.array(photo), -1)
     # 识别图片中文字
-    ocr = CnOcr()
+    # cnocr 2.1.0 可以直接用不传参
+    # cnocr-2.2.2.1 不可以直接用，需要传参如下
+    ocr = CnOcr(rec_model_name='densenet_lite_136-fc', det_model_name='densenet_lite_136-fc')
     res = ocr.ocr(img_array)
     if result == 'text':
         text = ''
         for i in res:
-            text += ''.join(i[0]) + '\n\n'
+            text += ''.join(i['text']) + '\n\n'
 
         # print(text)
         return text
@@ -72,4 +74,3 @@ if __name__ == '__main__':
     import os
 
     img_2_cn(os.path.join(os.path.dirname(__file__), '../../test_files/test_img_2_cn.gif'))
-    img_2_cn(r'D:\lzc\maida\test_files\test_img_2_cn.gif')
