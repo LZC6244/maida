@@ -55,9 +55,20 @@ class EmailSender(object):
         self.msg.attach(msg_text)
 
     def attach_html(self, text=''):
-        # 添加邮件正文 （ html ）
-        # html 格式不固定，故请将 html 源码全部输入
-        # 此处不通过 MIMEImage 定义图片ID，在 HTML 文本中引用 （ ... ）
+        """
+        添加邮件正文 （ html ）
+        html 格式不固定，故请将 html 源码全部输入
+        此处建议通过 MIMEImage 定义图片 ID ，如果使用 base64 嵌入图片，邮件中仍有几率不显示图片
+        解释：<img>元素引用的不是外部图片，而是邮件内的图片资源附件，故不会被屏蔽。
+        示例如下：
+        from email.mime.image import MIMEImage
+
+        with open('demo.png','rb') as f:
+            img = MIMEImage(f.read())
+            img.add_header('Content-ID','<111>')
+            self.msg.attach(img)
+        mail_body_html='<img src="cid:111">'
+        """
         msg_text = MIMEText(text, 'html', 'utf8')
         self.msg.attach(msg_text)
 
