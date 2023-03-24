@@ -24,12 +24,13 @@ class EmailSender(object):
     mail_log: bool
     msg = None
 
-    def __init__(self, email_host, email_port, from_addr, need_auth=True, email_pass=None, mail_log: bool = True):
+    def __init__(self, email_host, email_port, from_addr, need_auth=True, email_user=None, email_pass=None, mail_log: bool = True):
         """
         :param email_host: smtp 服务器地址，如 'smtp.163.com'
         :param email_port: smtp 服务器端口，如 465
-        :param from_addr: 发件人
+        :param from_addr: 发件人邮箱地址
         :param need_auth: 发送邮件是否需要验证，默认为 Ture
+        :param email_user: 发件人
         :param email_pass: 发件人授权码
         :param mail_log: 是否记录 mail 日志
         """
@@ -41,6 +42,7 @@ class EmailSender(object):
         self.mail_log = mail_log
         self.msg = MIMEMultipart()
         self.from_addr = from_addr
+        self.email_user = email_user if email_user is not None else from_addr
         self.msg['From'] = self.from_addr
 
     def clear_attach(self):
@@ -154,7 +156,7 @@ class EmailSender(object):
             if mail_tls:
                 client.starttls()
         if self.need_auth:
-            login_result = client.login(self.from_addr, self.email_pass)
+            login_result = client.login(self.email_user, self.email_pass)
             if login_result and login_result[0] == 235:
                 if self.mail_log:
                     logger.info(f'[ EmailSender ] Login successful: {subject}')
