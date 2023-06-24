@@ -24,24 +24,43 @@ class EmailSender(object):
     mail_log: bool
     msg = None
 
-    def __init__(self, email_host, email_port, from_addr, need_auth=True, email_pass=None, mail_log: bool = True):
+    def __init__(self, email_host, email_port, from_addr, need_auth=True, email_pass=None,
+                 mail_ssl=True, mail_tls=True, mail_log: bool = True):
         """
         :param email_host: smtp 服务器地址，如 'smtp.163.com'
         :param email_port: smtp 服务器端口，如 465
         :param from_addr: 发件人
         :param need_auth: 发送邮件是否需要验证，默认为 Ture
         :param email_pass: 发件人授权码
+        :param mail_ssl:是否使用ssl加密连接
+        :param mail_tls:是否使用tls加密连接
         :param mail_log: 是否记录 mail 日志
         """
         self.email_host = email_host
         self.email_port = email_port
         self.from_addr = from_addr
-        self.need_auth = need_auth
         self.email_pass = email_pass
         self.mail_log = mail_log
         self.msg = MIMEMultipart()
         self.from_addr = from_addr
         self.msg['From'] = self.from_addr
+
+        if mail_ssl:
+            # 在创建客户端对象的同时，使用SSL加密连接到邮箱服务器
+            self.cli = smtplib.SMTP_SSL(host=self.email_host, port=self.email_port)
+        else:
+            self.cli = smtplib.SMTP(host=self.email_host, port=self.email_port)
+            if mail_tls:
+                self.cli.starttls()
+        if need_auth:
+            login_result = self.cli.login(self.from_addr, self.email_pass)
+            if login_result and login_result[0] == 235:
+                if self.mail_log:
+                    logger.info(f'[ EmailSender ] Login successful')
+            else:
+                raise UserWarning('[ EmailSender ] Login failed: ', login_result[0], login_result[1])
+        else:
+            logger.info(f'[ EmailSender ] Not need auth')
 
     def clear_attach(self):
         """还原为空白邮件"""
@@ -105,13 +124,11 @@ class EmailSender(object):
             # att['Content-Disposition'] = 'attachment;filename="%s"' % filename
         self.msg.attach(att)
 
-    def send(self, to_addrs, subject, cc_addrs=None, mail_ssl=True, mail_tls=True, x_priority='3', **kwargs):
+    def send(self, to_addrs, subject, cc_addrs=None, x_priority='3', **kwargs):
         """
         :param to_addrs:收件人（收件人为字符串时，视其为一个仅含该字符串的列表）
         :param subject:邮件标题
         :param cc_addrs:抄送人
-        :param mail_ssl:是否使用ssl加密连接
-        :param mail_tls:是否使用tls加密连接
         :param x_priority:邮件优先级 （ 等同于 email Message 的 X-Priority ）
                 '1'	最高级别（重要性高）
                 '2'	介于中间 （高）
@@ -146,23 +163,6 @@ class EmailSender(object):
         for k, v in kwargs.items():
             self.msg[k] = v
 
-        if mail_ssl:
-            # 在创建客户端对象的同时，使用SSL加密连接到邮箱服务器
-            client = smtplib.SMTP_SSL(host=self.email_host, port=self.email_port)
-        else:
-            client = smtplib.SMTP(host=self.email_host, port=self.email_port)
-            if mail_tls:
-                client.starttls()
-        if self.need_auth:
-            login_result = client.login(self.from_addr, self.email_pass)
-            if login_result and login_result[0] == 235:
-                if self.mail_log:
-                    logger.info(f'[ EmailSender ] Login successful: {subject}')
-            else:
-                raise UserWarning('[ EmailSender ] Login failed: ', login_result[0], login_result[1], f'--- {subject}')
-        else:
-            logger.info(f'[ EmailSender ] Not need auth: {subject}')
-
         from_addr = self.msg['From']
         # 需为一个 list
         to_addrs = self.msg['To'].split(',')
@@ -170,11 +170,14 @@ class EmailSender(object):
             cc_addrs = self.msg['Cc'].split(',')
             to_addrs.extend(cc_addrs)
         try:
-            client.sendmail(from_addr, to_addrs, self.msg.as_string())
+            self.cli.sendmail(from_addr, to_addrs, self.msg.as_string())
             if self.mail_log:
                 logger.info(f'[ EmailSender ] Email sent successful: {subject}')
-        finally:
-            client.close()
+        except Exception as e:
+            logger.error(f'[ EmailSender ] Email sent failed: {subject}\n\n{repr(e)}')
+
+    def close(self):
+        self.cli.close()
 
 
 if __name__ == '__main__':
